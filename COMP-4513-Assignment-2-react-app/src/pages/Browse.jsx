@@ -46,7 +46,11 @@ export default function Browse() {
 
     if (titleFilter.trim()) {
       const q = titleFilter.toLowerCase();
-      result = result.filter((s) => s.title.toLowerCase().includes(q));
+      result = result.filter(
+        (s) =>
+          s.title.toLowerCase().includes(q) ||
+          s.artistName.toLowerCase().includes(q)
+      );
     }
 
     if (selectedYears.length > 0) {
@@ -54,17 +58,17 @@ export default function Browse() {
     }
 
     if (selectedArtists.length > 0) {
-      result = result.filter((s) => selectedArtists.includes(s.artist_id));
+      result = result.filter((s) => selectedArtists.includes(s.artistId));
     }
 
     if (selectedGenres.length > 0) {
-      result = result.filter((s) => selectedGenres.includes(s.genre_id));
+      result = result.filter((s) => selectedGenres.includes(s.genreId));
     }
 
     result.sort((a, b) => {
       if (sortBy === 'title') return a.title.localeCompare(b.title);
       if (sortBy === 'year') return a.year - b.year;
-      if (sortBy === 'artist') return a.artist_name.localeCompare(b.artist_name);
+      if (sortBy === 'artist') return a.artistName.localeCompare(b.artistName);
       return 0;
     });
 
