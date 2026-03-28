@@ -11,36 +11,72 @@ export function DataProvider({ children }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    let cancelled = false;
-
     async function load() {
       try {
         setLoading(true);
-        const [a, g, s] = await Promise.all([
+
+        const [rawArtists, rawGenres, rawSongs] = await Promise.all([
           api.getArtists(),
           api.getGenres(),
           api.getSongs()
         ]);
-        if (!cancelled) {
-          setArtists(a);
-          setGenres(g);
-          setSongs(s);
-        }
+
+        // 🔥 Normalize artists
+        const artists = rawArtists.map(a => ({
+          id: a.artist_id,
+          name: a.artist_name,
+          type: a.type_name,
+          image: a.artist_image_url,
+          url: a.spotify_url,
+          description: a.spotify_desc
+        }));
+
+        // 🔥 Normalize genres
+        const genres = rawGenres.map(g => ({
+          id: g.genre_id,
+          name: g.genre_name
+        }));
+
+        // 🔥 Normalize songs
+        const songs = rawSongs.map(s => ({
+          id: s.song_id,
+          title: s.title,
+          artistId: s.artist_id,
+          genreId: s.genre_id,
+          year: s.year,
+          bpm: s.bpm,
+          energy: s.energy,
+          danceability: s.danceability,
+          loudness: s.loudness,
+          liveness: s.liveness,
+          valence: s.valence,
+          duration: s.duration,
+          acousticness: s.acousticness,
+          speechiness: s.speechiness,
+          popularity: s.popularity,
+          artistName: s.artist_name,
+          genreName: s.genre_name
+        }));
+
+        setArtists(artists);
+        setGenres(genres);
+        setSongs(songs);
+
       } catch (err) {
-        if (!cancelled) setError(err.message);
+        setError(err.message);
       } finally {
-        if (!cancelled) setLoading(false);
+        setLoading(false);
       }
     }
 
     load();
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
-  const value = { artists, genres, songs, loading, error };
-  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+  return (
+    <DataContext.Provider value={{ artists, genres, songs, loading, error }}>
+      {children}
+    </DataContext.Provider>
+  );
 }
 
 export function useData() {
