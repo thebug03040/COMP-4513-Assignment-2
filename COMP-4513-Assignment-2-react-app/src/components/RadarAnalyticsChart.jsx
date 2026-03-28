@@ -23,15 +23,7 @@ export default function RadarAnalyticsChart({ song }) {
     'acousticness'
   ];
 
-  const values = [
-    Number(song.danceability) / 100,
-    Number(song.energy) / 100,
-    Number(song.valence) / 100,
-    Number(song.liveness) / 100,
-    Number(song.speechiness) / 100,
-    Number(song.acousticness) / 100
-  ];
-
+  const values = labels.map((key) => song[key] ?? 0);
 
   const data = {
     labels,
@@ -46,15 +38,35 @@ export default function RadarAnalyticsChart({ song }) {
     ]
   };
 
-  const options = {
-    scales: {
-      r: {
-        suggestedMin: 0,
-        suggestedMax: 1,
-        ticks: { stepSize: 0.2 }
+const options = {
+  scales: {
+    r: {
+      suggestedMin: 0,
+      suggestedMax: 1,
+      ticks: {
+        display: false
+      },
+      grid: {
+        color: 'rgba(255,255,255,0.1)'
+      },
+      angleLines: {
+        color: 'rgba(255,255,255,0.2)'
+      },
+      pointLabels: {
+        font: {
+          size: 12
+        },
+        color: '#fff'
       }
     }
-  };
+  },
+  plugins: {
+    legend: {
+      display: false
+    }
+  }
+};
+
 
   return <Radar data={data} options={options} />;
 }
