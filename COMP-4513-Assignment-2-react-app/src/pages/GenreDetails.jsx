@@ -7,8 +7,8 @@ export default function GenreDetails() {
   const { id } = useParams();
   const { genres, songs } = useData();
 
-  const genre = genres.find((g) => String(g.id) === id);
-  const genreSongs = songs.filter((s) => s.genre_id === (genre?.id ?? -1));
+  const genre = genres.find(g => g.id === Number(id));
+  const genreSongs = songs.filter(s => s.genreId === genre.id);
 
   if (!genre) return <Typography>Genre not found.</Typography>;
 

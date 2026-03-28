@@ -18,9 +18,10 @@ export default function SongDetails() {
   const { songs, artists, genres } = useData();
   const { addSongToPlaylist } = usePlaylist();
 
-  const song = songs.find((s) => String(s.id) === id);
-  const artist = song ? artists.find((a) => a.id === song.artist_id) : null;
-  const genre = song ? genres.find((g) => g.id === song.genre_id) : null;
+const song = songs.find(s => s.id === Number(id));
+const artist = artists.find(a => a.id === song.artistId);
+const genre = genres.find(g => g.id === song.genreId);
+
 
   const relatedSongs = useMemo(() => {
     if (!song) return [];

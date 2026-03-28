@@ -7,8 +7,8 @@ export default function ArtistDetails() {
   const { id } = useParams();
   const { artists, songs } = useData();
 
-  const artist = artists.find((a) => String(a.id) === id);
-  const artistSongs = songs.filter((s) => s.artist_id === (artist?.id ?? -1));
+  const artist = artists.find(a => a.id === Number(id));
+  const artistSongs = songs.filter(s => s.artistId === artist.id);
 
   if (!artist) return <Typography>Artist not found.</Typography>;
 
