@@ -1,3 +1,5 @@
+import React from 'react';
+
 import { AppBar, Toolbar, Typography, Button, Box, Badge } from '@mui/material';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
