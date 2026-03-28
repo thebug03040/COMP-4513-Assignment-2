@@ -42,6 +42,7 @@ export function DataProvider({ children }) {
           id: s.song_id,
           title: s.title,
           artistId: s.artist_id,
+          artistName: s.artistName,
           genreId: s.genre_id,
           year: s.year,
           bpm: s.bpm,

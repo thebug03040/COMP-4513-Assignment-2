@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { useData } from './DataContext';
 
 const PlaylistContext = createContext();
 
@@ -32,7 +33,13 @@ export function PlaylistProvider({ children }) {
   const currentPlaylist = playlists.find((p) => p.id === currentPlaylistId) || null;
 
   // Helper: songs inside current playlist
-  const currentSongs = currentPlaylist ? currentPlaylist.songs : [];
+  const { songs: allSongs } = useData();
+
+  const currentSongs = currentPlaylist
+    ? currentPlaylist.songs
+        .map(id => allSongs.find(s => s.id === id))
+        .filter(Boolean)
+    : [];
 
   // Create a new playlist
   function createPlaylist(name) {
