@@ -57,7 +57,7 @@ export default function SongList({
                   to={`/artists/${song.artist_id}`}
                   sx={{ textDecoration: 'none', color: 'secondary.main' }}
                 >
-                  {song.artist_name}
+                  {song.artistName}
                 </Typography>
               </TableCell>
               <TableCell>{song.year}</TableCell>
