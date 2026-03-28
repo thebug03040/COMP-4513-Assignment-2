@@ -1,82 +1,99 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { api } from '../api';
 import toast from 'react-hot-toast';
 
 const PlaylistContext = createContext();
 
+const STORAGE_KEY = 'comp4513_playlists';
+
 export function PlaylistProvider({ children }) {
   const [playlists, setPlaylists] = useState([]);
   const [currentPlaylistId, setCurrentPlaylistId] = useState(null);
-  const [currentSongs, setCurrentSongs] = useState([]);
 
+  // Load from localStorage on startup
   useEffect(() => {
-    loadPlaylists();
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setPlaylists(parsed);
+
+      // Auto-select first playlist if exists
+      if (parsed.length > 0) {
+        setCurrentPlaylistId(parsed[0].id);
+      }
+    }
   }, []);
 
+  // Save to localStorage whenever playlists change
   useEffect(() => {
-    if (currentPlaylistId) {
-      loadPlaylistSongs(currentPlaylistId);
-    } else {
-      setCurrentSongs([]);
-    }
-  }, [currentPlaylistId]);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(playlists));
+  }, [playlists]);
 
-  async function loadPlaylists() {
-    try {
-      const data = await api.getPlaylists();
-      setPlaylists(data);
-      if (!currentPlaylistId && data.length > 0) {
-        setCurrentPlaylistId(data[0].id);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  }
+  // Helper: get current playlist object
+  const currentPlaylist = playlists.find((p) => p.id === currentPlaylistId) || null;
 
-  async function loadPlaylistSongs(id) {
-    try {
-      const pl = await api.getPlaylist(id);
-      setCurrentSongs(pl.songs || []);
-    } catch (err) {
-      console.error(err);
-    }
-  }
+  // Helper: songs inside current playlist
+  const currentSongs = currentPlaylist ? currentPlaylist.songs : [];
 
-  async function createPlaylist(name) {
-    const newPl = await api.createPlaylist({ name });
+  // Create a new playlist
+  function createPlaylist(name) {
+    const newPlaylist = {
+      id: Date.now(), // reference number
+      name,
+      songs: []
+    };
+
+    setPlaylists((prev) => [...prev, newPlaylist]);
+    setCurrentPlaylistId(newPlaylist.id);
     toast.success('Playlist created');
-    await loadPlaylists();
-    setCurrentPlaylistId(newPl.id);
   }
 
-  async function deletePlaylist(id) {
-    await api.deletePlaylist(id);
-    toast.success('Playlist deleted');
-    await loadPlaylists();
+  // Delete a playlist
+  function deletePlaylist(id) {
+    setPlaylists((prev) => prev.filter((p) => p.id !== id));
     if (currentPlaylistId === id) {
       setCurrentPlaylistId(null);
     }
+    toast.success('Playlist deleted');
   }
 
-  async function addSong(songId) {
+  // Add a song to the current playlist
+  function addSongToPlaylist(songId) {
     if (!currentPlaylistId) {
       toast.error('Select or create a playlist first');
       return;
     }
-    await api.addSongToPlaylist(currentPlaylistId, songId);
+
+    setPlaylists((prev) =>
+      prev.map((p) =>
+        p.id === currentPlaylistId
+          ? {
+              ...p,
+              songs: p.songs.includes(songId)
+                ? p.songs
+                : [...p.songs, songId]
+            }
+          : p
+      )
+    );
+
     toast.success('Song added to playlist');
-    await loadPlaylistSongs(currentPlaylistId);
   }
 
-  async function removeSong(songId) {
-    if (!currentPlaylistId) return;
-    await api.removeSongFromPlaylist(currentPlaylistId, songId);
+  // Remove a song from the current playlist
+  function removeSongFromPlaylist(songId) {
+    setPlaylists((prev) =>
+      prev.map((p) =>
+        p.id === currentPlaylistId
+          ? {
+              ...p,
+              songs: p.songs.filter((id) => id !== songId)
+            }
+          : p
+      )
+    );
+
     toast.success('Song removed from playlist');
-    await loadPlaylistSongs(currentPlaylistId);
   }
-
-  const currentPlaylist =
-    playlists.find((p) => p.id === currentPlaylistId) || null;
 
   const value = {
     playlists,
@@ -86,16 +103,12 @@ export function PlaylistProvider({ children }) {
     currentSongs,
     createPlaylist,
     deletePlaylist,
-    addSongToPlaylist: addSong,
-    removeSongFromPlaylist: removeSong,
+    addSongToPlaylist,
+    removeSongFromPlaylist,
     totalSongsInCurrent: currentSongs.length
   };
 
-  return (
-    <PlaylistContext.Provider value={value}>
-      {children}
-    </PlaylistContext.Provider>
-  );
+  return <PlaylistContext.Provider value={value}>{children}</PlaylistContext.Provider>;
 }
 
 export function usePlaylist() {
