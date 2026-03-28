@@ -31,9 +31,7 @@ export default function Artists() {
                   image={artist.image || 'https://picsum.photos/400?blur=2'}
                   alt={artist.name}
                 />
-
-                <Typography variant="h6">{artist.name}</Typography>
-
+                
                 <CardContent>
                   <Typography variant="h6">{artist.name}</Typography>
                 </CardContent>
