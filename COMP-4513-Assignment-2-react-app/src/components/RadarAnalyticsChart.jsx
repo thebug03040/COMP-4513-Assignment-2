@@ -23,7 +23,7 @@ export default function RadarAnalyticsChart({ song }) {
     'acousticness'
   ];
 
-  const values = labels.map((key) => song[key] ?? 0);
+  const values = labels.map((key) => (song[key] ?? 0) / 100);
 
   const data = {
     labels,
