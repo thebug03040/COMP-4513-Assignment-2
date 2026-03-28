@@ -1,15 +1,35 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
-import { MantineProvider } from "@mantine/core";
-import { BrowserRouter } from "react-router-dom";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { Toaster } from 'react-hot-toast';
+import App from './App';
+import { DataProvider } from './context/DataContext';
+import { AuthProvider } from './context/AuthContext';
+import { PlaylistProvider } from './context/PlaylistContext';
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: { main: '#ff6f61' },
+    secondary: { main: '#4dd0e1' },
+  },
+});
+
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <MantineProvider withGlobalStyles withNormalizeCSS>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <BrowserRouter>
-        <App />
+        <AuthProvider>
+          <DataProvider>
+            <PlaylistProvider>
+              <App />
+              <Toaster position="top-right" />
+            </PlaylistProvider>
+          </DataProvider>
+        </AuthProvider>
       </BrowserRouter>
-    </MantineProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );
